@@ -21,12 +21,12 @@ public class EmailApp {
 	public EmailApp (String emailAddress, String password) {
 		email = emailAddress;
 		pass = password;
-		login();
-		getInbox();
+		//login();
+		//getInbox();
 
 	}
 
-	private boolean login() {
+	public boolean login() {
 		
 		boolean success = false;
 		
@@ -54,7 +54,7 @@ public class EmailApp {
 		return success;
 	}
 	
-	public void getInbox() {
+	public boolean getInbox() {
 		Folder inbox;
 		try {
 			inbox = store.getFolder("Inbox");
@@ -73,6 +73,22 @@ public class EmailApp {
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+
+		if (messages.length > 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public String getMessage(int index) {
+		try {
+			return getText(messages[index]);
+		} catch (MessagingException | IOException e) {
+			// TODO Auto-generated catch block
+			return "";
 		}
 	}
 

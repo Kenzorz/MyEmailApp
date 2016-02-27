@@ -7,34 +7,44 @@ public class EmailTest {
 
 	@Test
 	public void SuccessfulLoginTest() {
-		EmailReader er = new EmailReader();
-		String email = "TestEmailOrange@hotmail.com";
-		String password = "verysecure";		//correct password
-		boolean successful = er.login(emailAddress, password);
+		String email = "OrangeTest3@hotmail.com";
+		String password = "hellopass1+";		//correct password
+		EmailApp app = new EmailApp(email, password);
+		boolean successful = app.login();
 		assertEquals(true, successful);
 	}
 	
 	@Test
 	public void InvalidLoginTest() {
-		EmailReader er = new EmailReader();
-		String email = "TestEmailOrange@hotmail.com";
-		String password = "verysecurr"; 	//incorrect password
-		boolean successful = er.login(emailAddress, password);
-		assertEquals(false, successful);
+		String email = "OrangeTest3@hotmail.com";
+		String password = "hellopas";		//incorrect password
+		EmailApp app = new EmailApp(email, password);
+		boolean successful = app.login();
+		assertEquals(true, successful);
 	}
 	
 	@Test
 	public void FetchEmails() {
-		EmailReader er = new EmailReader();
-		boolean successful = er.fetchContent();
+		String email = "OrangeTest3@hotmail.com";
+		String password = "hellopass1+";
+		EmailApp app = new EmailApp(email, password);
+		boolean successful = app.getInbox();
 		assertEquals(true, successful);
 	}
 	
 	@Test
 	public void OpenAnEmail() {
-		EmailReader er = new EmailReader();
-		boolean successful = er.openEmailContent(int id);
-		assertEquals(true, successful);
+		String email = "OrangeTest3@hotmail.com";
+		String password = "hellopass1+";
+		EmailApp app = new EmailApp(email, password);
+		app.getInbox();
+		String message = app.getMessage(0);
+		if (message.equals("")) {
+			assertEquals(true, true);
+		}
+		else {
+			assertEquals(true, false);
+		}
 	}
 
 }
