@@ -49,53 +49,62 @@ public class EmailApp {
 			inbox.open(Folder.READ_ONLY);
 			Message messages[] = inbox.getMessages();
 			Message aMessage = messages[1];
-			System.out.println(aMessage.getSubject());
-			
+			System.out.println(aMessage.getSubject());	
 			try {
-				Part p = (Part)aMessage.getContent();
-				if (p.isMimeType("text/*")) {
-					String s = (String)p.getContent();
-				}
-				
-				else if (p.isMimeType("multipart/alternative")) {
-					Multipart mp = (Multipart)p.getContent();
-					String text = null;
-					
-					 for (int i = 0; i < mp.getCount(); i++) {
-			                Part bp = mp.getBodyPart(i);
-			                if (bp.isMimeType("text/plain")) {
-			                    if (text == null)
-			                        text = aMessage.getText(bp);
-			                
-			                } else if (bp.isMimeType("text/html")) {
-			                    String s = getText(bp);
-			                        
-			                } else {
-			                   
-			                }
-			            }
-			            return text;
-			        } else if (p.isMimeType("multipart/*")) {
-			            Multipart mp = (Multipart)p.getContent();
-			            for (int i = 0; i < mp.getCount(); i++) {
-			                String s = getText(mp.getBodyPart(i));
-			                if (s != null)
-			                    return s;
-			            }
-			        }
-				}
-				
-				
+				String body = getText(aMessage);
+				System.out.println(body);	
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+
+	/**
+	 * Return the primary text content of the message.
+	 */
+	private String getText(Part p) throws MessagingException, IOException {
+		boolean textIsHtml = false;
+		
+	    if (p.isMimeType("text/*")) {
+	        String s = (String)p.getContent();
+	        textIsHtml = p.isMimeType("text/html");
+	        return s;
+	    }
+	
+	    if (p.isMimeType("multipart/alternative")) {
+	        // prefer html text over plain text
+	        Multipart mp = (Multipart)p.getContent();
+	        String text = null;
+	        for (int i = 0; i < mp.getCount(); i++) {
+	            Part bp = mp.getBodyPart(i);
+	            if (bp.isMimeType("text/plain")) {
+	                if (text == null)
+	                    text = getText(bp);
+	                continue;
+	            } else if (bp.isMimeType("text/html")) {
+	                String s = getText(bp);
+	                if (s != null)
+	                    return s;
+	            } else {
+	                return getText(bp);
+	            }
+	        }
+	        return text;
+	    } else if (p.isMimeType("multipart/*")) {
+	        Multipart mp = (Multipart)p.getContent();
+	        for (int i = 0; i < mp.getCount(); i++) {
+	            String s = getText(mp.getBodyPart(i));
+	            if (s != null)
+	                return s;
+	        }
+	    }
+	
+	    return null;
 	}
 	
 }
