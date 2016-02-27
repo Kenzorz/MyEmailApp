@@ -14,32 +14,44 @@ public class EmailApp {
 	Session session;
 	Store store;
 	URLName url;
+	boolean textIsHtml = false;
+	
+	Message messages[];
 	
 	public EmailApp (String emailAddress, String password) {
 		email = emailAddress;
 		pass = password;
-		
-		String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-		
-		Properties props = new Properties();
-		props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
-		props.setProperty("mail.pop3.socketFactory.fallback", "false");
-		props.setProperty("mail.pop3.port",  "995");
-		props.setProperty("mail.pop3.socketFactory.port", "995");
-
-		url = new URLName("pop3", host, 995, "", email, pass);
-		session = Session.getInstance(props, null);
-		store = new POP3SSLStore(session, url);
-		try {
-			store.connect();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println(store);
+		login();
 		getInbox();
 
+	}
+
+	private boolean login() {
+		
+		boolean success = false;
+		
+		try {
+			String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+			
+			Properties props = new Properties();
+			props.setProperty("mail.pop3.socketFactory.class", SSL_FACTORY);
+			props.setProperty("mail.pop3.socketFactory.fallback", "false");
+			props.setProperty("mail.pop3.port",  "995");
+			props.setProperty("mail.pop3.socketFactory.port", "995");
+	
+			url = new URLName("pop3", host, 995, "", email, pass);
+			session = Session.getInstance(props, null);
+			store = new POP3SSLStore(session, url);
+			store.connect();
+			success = true; 
+		} catch (AuthenticationFailedException e) {
+			//e.printStackTrace();
+		} catch (MessagingException e) {
+			//e.printStackTrace();
+		}
+
+		//System.out.println(success);
+		return success;
 	}
 	
 	public void getInbox() {
@@ -47,7 +59,7 @@ public class EmailApp {
 		try {
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_ONLY);
-			Message messages[] = inbox.getMessages();
+			messages = inbox.getMessages();
 			Message aMessage = messages[1];
 			System.out.println(aMessage.getSubject());	
 			try {
@@ -67,9 +79,7 @@ public class EmailApp {
 	/**
 	 * Return the primary text content of the message.
 	 */
-	private String getText(Part p) throws MessagingException, IOException {
-		boolean textIsHtml = false;
-		
+	private String getText(Part p) throws MessagingException, IOException {		
 	    if (p.isMimeType("text/*")) {
 	        String s = (String)p.getContent();
 	        textIsHtml = p.isMimeType("text/html");
