@@ -1,7 +1,10 @@
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.*;
+import javax.mail.internet.InternetAddress;
 
 import com.sun.mail.pop3.POP3SSLStore;
 
@@ -21,8 +24,10 @@ public class EmailApp {
 	public EmailApp (String emailAddress, String password) {
 		email = emailAddress;
 		pass = password;
-		//login();
-		//getInbox();
+		login();
+		getInbox();
+		getSenderName(messages[1]);
+		getReceivedDate(messages[1]);
 
 	}
 
@@ -131,6 +136,37 @@ public class EmailApp {
 	    }
 	
 	    return null;
+	}
+	
+	public String getReceivedDate(Message m) {
+		String dateString = "";
+		
+		try {
+			Date d = m.getSentDate();
+			SimpleDateFormat formatter = new SimpleDateFormat("EEE dd MMM yyyy HH:mm");
+			dateString = formatter.format(d);
+			//System.out.println(dateString);
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	
+		return dateString;
+	}
+	
+	public String getSenderName(Message m) {
+		try {
+			Address[] froms = m.getFrom();
+			String email = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
+			String person = froms == null ? null : ((InternetAddress) froms[0]).getPersonal();
+			//System.out.println(email);
+			//System.out.println(person);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "";
 	}
 	
 }
