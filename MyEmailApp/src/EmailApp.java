@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.security.auth.Subject;
 
 import com.sun.mail.pop3.POP3SSLStore;
 
@@ -24,10 +25,10 @@ public class EmailApp {
 	public EmailApp (String emailAddress, String password) {
 		email = emailAddress;
 		pass = password;
-		login();
-		getInbox();
-		getSenderName(messages[1]);
-		getReceivedDate(messages[1]);
+		//login();
+		//getInbox();
+		//getSenderName(messages[1]);
+		//getReceivedDate(messages[1]);
 
 	}
 
@@ -65,16 +66,6 @@ public class EmailApp {
 			inbox = store.getFolder("Inbox");
 			inbox.open(Folder.READ_ONLY);
 			messages = inbox.getMessages();
-			Message aMessage = messages[1];
-			System.out.println(aMessage.getSubject());	
-			try {
-				String body = getText(aMessage);
-				System.out.println(body);	
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
 		} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -88,15 +79,19 @@ public class EmailApp {
 		}
 	}
 	
-	public String getMessage(int index) {
+	public Message getMessage(int index) {
+		return messages[index];
+	}
+	
+	public String getBody(Message m) {
 		try {
-			return getText(messages[index]);
+			return getText(m);
 		} catch (MessagingException | IOException e) {
 			// TODO Auto-generated catch block
 			return "";
 		}
 	}
-
+	
 	/**
 	 * Return the primary text content of the message.
 	 */
@@ -138,6 +133,19 @@ public class EmailApp {
 	    return null;
 	}
 	
+	public String getEmailSubject(Message m) {
+		String subject = "";
+		
+		try {
+			subject = m.getSubject();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return subject;
+	}
+	
 	public String getReceivedDate(Message m) {
 		String dateString = "";
 		
@@ -154,19 +162,32 @@ public class EmailApp {
 		return dateString;
 	}
 	
-	public String getSenderName(Message m) {
+	public String getSenderAddress(Message m) {
+		String address = "";
+		
 		try {
 			Address[] froms = m.getFrom();
-			String email = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
-			String person = froms == null ? null : ((InternetAddress) froms[0]).getPersonal();
-			//System.out.println(email);
-			//System.out.println(person);
+			address = froms == null ? null : ((InternetAddress) froms[0]).getAddress();
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		return "";
+		return address;
+	}
+	
+	public String getSenderName(Message m) {
+		String person = "";
+		
+		try {
+			Address[] froms = m.getFrom();
+			person = froms == null ? null : ((InternetAddress) froms[0]).getPersonal();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return person;
 	}
 	
 }
